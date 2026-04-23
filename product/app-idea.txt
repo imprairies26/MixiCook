@@ -1,0 +1,123 @@
+1. Module tìm kiếm + gợi ý công thức món ăn
+    Tìm kiếm công thức: Cho phép người dùng tìm món ăn theo tên món hoặc nhập các nguyên liệu đang có sẵn.
+    Tự động tính toán khẩu phần: Người dùng nhập số người ăn thực tế -> hệ thống sẽ tự động nhân/chia định lượng nguyên liệu của công thức gốc cho phù hợp.
+
+2. Module Trải nghiệm Nấu ăn Thực tế 
+    Chế độ Nấu ăn (Cooking Mode): Hiển thị công thức dưới dạng bảng note trực quan, từng bước một, chữ to rõ ràng.
+    Đồng hồ đếm ngược (Cooking Timer): Tích hợp sẵn đồng hồ bấm giờ ngay trong các bước nấu (ví dụ: nút bấm "Hầm 20 phút" đi kèm trong text hướng dẫn).
+    Chế độ Rảnh tay (Hands-free): Tự động giữ màn hình luôn sáng trong suốt quá trình ở "Cooking Mode" để người dùng không phải chạm tay dính dầu mỡ vào điện thoại.
+
+3. Module Cộng đồng và tương tác (như một mạng xã hội thu nhỏ)
+    Đăng bài hướng dẫn làm theo công thức: Cung cấp một form tạo công thức chuyên nghiệp để đảm bảo dữ liệu đầu vào sạch. Người dùng phải nhập: Tên món -> Phân loại (Tag: Healthy, Đồ chiên...) -> Chọn nguyên liệu (từ DB) -> Viết các bước hướng dẫn kèm ảnh chụp.
+    Hệ thống Tương tác: Người dùng khác có thể lưu công thức, đánh giá (1-5 sao) sau khi nấu thử và để lại bình luận chia sẻ kinh nghiệm (hoặc hình ảnh thành quả).
+
+4. Module Tiện ích Mở rộng
+    Giỏ đi chợ thông minh (Shopping List): So sánh nguyên liệu người dùng đang có với nguyên liệu của công thức. Tự động xuất ra một danh sách (checklist) các món còn thiếu để người dùng mang đi siêu thị.
+    Tính toán Dinh dưỡng cơ bản: Dựa trên định lượng nguyên liệu chuẩn hóa, ứng dụng có thể ước tính tổng lượng Calo của món ăn, phục vụ cho tập người dùng quan tâm đến sức khỏe.
+
+5. Module Cá nhân hóa người dùng (Dùng học máy cơ bản)
+    Setting sẵn sở thích ban đầu: Thu thập dữ liệu ban đầu khi người dùng mới đăng ký (Chế độ ăn ưa thích, các nguyên liệu bị dị ứng/không thích/ món ăn healthy/chiên rán/ món âu, món á...).
+    Hệ thống đề xuất: Ứng dụng các thuật toán phân tích hành vi cơ bản (như phân cụm người dùng có chung sở thích) để tự động đẩy các món ăn phù hợp (đồ Âu, đồ chay, đồ chiên rán...) lên đầu trang chủ và trang tìm kiếm. áp dụng thêm phân lớn để tìm kiếm món ăn hiệu quả hơn
+
+Các chức năng cần làm (mobile):
+- Đăng nhập / Đăng kí / Quên mật khẩu (SDT/Email - Password)
+
+- tìm kiếm món ăn (áp dụng học máy)
+ + tìm kiếm theo tên món (tìm kiếm trực tiếp công thức)
+ + tìm kiếm dựa trên nguyên liệu có sẵn (các nguyên liệu có sẵn trong db, khẩu phần ăn)
+ -> đưa ra danh sách các công thức nấu ăn
+ + cá nhân hoá - dựa trên lựa chọn người dùng mà đề xuất ra các công thức phù hợp với sở thích lên trước (re index)
+
+- cooking mode ???? 
+ + chế độ rảnh tay cho người dùng - với một màn hình ko tự động tắt, thực hiện đánh dấu các bước (như node) có đồng hồ tính giờ...
+
+- giỏ đi chợ thông minh:
+ + đưa các nguyên liệu còn thiếu trong công thức vào trong một giỏ hàng -> người dùng có thể dùng như một note để đem đi mua nguyên liệu...
+
+- xem chi tiết công thức
+ +về định lượng cần tự căn chỉnh sao cho phù hợp: vd dựa trên khẩu phần mà công thức ghi (vd cho 2 người) mà người dùng chọn 1 người thì tự tính toán lại các định lượng trong công thức ? 
+
+- rating, comment
+ + người dùng commnet và đánh giá cho công thức (như kiểu đánh giá trên grab ấy :v )
+
+- đăng công thức nấu ăn
+ + cần đăng và làm theo form chuẩn (để data sạch) , cần đăng ảnh món ăn lên
+
+
+
+các luồng nghiệp vụ cơ bản (sơ bộ)
+Luồng 1: Khởi động & Cá nhân hóa (Onboarding Flow)
+
+    Màn hình Mở app (Splash Screen) -> Chuyển sang Màn hình Đăng nhập/Đăng ký.
+
+    Màn hình Khảo sát (Chỉ xuất hiện lần đầu):
+
+        Hỏi: "Bạn thích khẩu vị nào?" (Chọn tags: Đồ Âu, Healthy, Đồ chay...).
+
+        Hỏi: "Bạn có dị ứng/ghét nguyên liệu nào không?" (Để AI loại trừ).
+
+    Hoàn thành -> Chuyển vào Trang chủ.
+
+Luồng 2: Lướt xem và Khám phá (Trang chủ - Home)
+
+    Màn hình Home:
+
+        Hiển thị các Feed (danh sách cuộn ngang/dọc) được AI đề xuất dựa trên Onboarding: Gợi ý cho bạn hôm nay, Món Âu hot nhất, Top công thức được Rate 5 sao.
+
+        Người dùng có thể bấm vào một bài viết bất kỳ để chuyển sang Luồng 4.
+
+Luồng 3: "Hôm nay ăn gì?" (Luồng Tìm kiếm - Core Flow)
+
+    Màn hình Tìm kiếm (Tab 2):
+
+        Có thanh Search Box (Tìm theo tên món).
+
+        Khu vực chọn Nguyên liệu: Người dùng tick chọn các icon/tên nguyên liệu đang có trong tủ lạnh (VD: Trứng, Cà chua, Hành lá).
+
+    Màn hình Kết quả Tìm kiếm:
+
+        Hiển thị danh sách các món làm được từ Trứng và Cà chua (VD: Trứng sốt cà chua, Canh trứng).
+
+        Người dùng bấm vào 1 món -> Chuyển sang Luồng 4.
+
+Luồng 4: Trải nghiệm Nấu ăn & Tương tác (Cooking Flow)
+
+    Màn hình Chi tiết Công thức:
+
+        Hiển thị Tên món, Tác giả, Rating tổng, Ảnh/Video thành phẩm.
+
+        Thao tác 1 (Scale khẩu phần): Có nút (+/-) số người ăn. Định lượng nguyên liệu tự động nhảy số theo.
+
+        Thao tác 2 (Shopping List): Người dùng lướt xem nguyên liệu, thấy thiếu "Hành lá" -> Bấm nút [+] cạnh Hành lá để thêm vào "Giỏ đi chợ" (Tab 4).
+
+        Thao tác 3: Bấm nút "BẮT ĐẦU NẤU" to, nổi bật.
+
+    Màn hình Cooking Mode (Bảng Note):
+
+        Giao diện tối giản, chữ to. Màn hình không tự tắt.
+
+        Hiển thị Bước 1. Vuốt sang trái/phải để sang Bước 2, Bước 3.
+
+        Nếu Bước 2 ghi "Hầm 20 phút", có nút [Bắt đầu 20:00] ngay bên cạnh. Bấm vào đồng hồ sẽ đếm ngược.
+
+    Kết thúc nấu ăn:
+
+        Bấm nút "Hoàn thành". App tự động hiển thị Popup: "Chúc mừng bạn đã hoàn thành món ăn! Hãy đánh giá công thức này nhé."
+
+        Người dùng chọn số Sao (1-5), viết Comment nhanh kèm ảnh chụp -> Nhấn gửi -> App lưu vào cơ sở dữ liệu và hiển thị ở phần bình luận của bài viết gốc.
+
+Luồng 5: Chia sẻ Công thức (Creation Flow)
+
+    Nút (+) ở giữa Bottom Bar: Bấm vào sẽ mở ra Form Đăng bài chuẩn hóa.
+
+    Màn hình Soạn thảo:
+
+        Nhập Tên món & Tải ảnh Cover.
+
+        Chọn Tag phân loại.
+
+        Thêm Nguyên liệu (Tìm và chọn từ Database của app) & Nhập định lượng cho 1 người ăn.
+
+        Viết Hướng dẫn (Bước 1:..., Thêm Bước 2:...).
+
+    Bấm "Đăng tải": Dữ liệu được đẩy lên Server, bài viết xuất hiện trên Profile của người dùng và Trang chủ của cộng đồng.
