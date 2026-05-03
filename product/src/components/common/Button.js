@@ -39,12 +39,12 @@ export default function Button({
         style={[style, disabled && { opacity: 0.6 }]}
         disabled={disabled}
       >
-        <LinearGradient
-          colors={[COLORS.primary, '#34d399']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={[styles.base, styles.primary]}
-        >
+          <LinearGradient
+            colors={[COLORS.primary, '#34d399']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={[styles.base, styles.primary, { width: '100%' }]}
+          >
           {icon}
           <Text style={[styles.text, styles.textPrimary, textStyle]}>{title}</Text>
         </LinearGradient>
@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 14,
+    height: 52,
     paddingHorizontal: 24,
     borderRadius: 16,
     gap: 10,

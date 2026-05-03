@@ -159,8 +159,12 @@ export default function CookingModeScreen({ route, navigation }) {
             <Text style={styles.modalSubtitle}>Bạn đã hoàn thành món {recipe.title}. Hãy chia sẻ thành quả nhé!</Text>
             
             <View style={styles.modalActions}>
-              <Button title="Về Trang chủ" variant="outline" style={{ flex: 1 }} onPress={() => navigation.navigate('HomeTab')} />
-              <Button title="Đánh giá" style={{ flex: 1 }} onPress={() => navigation.navigate('HomeTab')} />
+              <View style={{ flex: 1 }}>
+                <Button title="Về Trang chủ" variant="outline" style={{ width: '100%', paddingHorizontal: 0 }} onPress={() => navigation.navigate('MainTabs')} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Button title="Đánh giá" style={{ width: '100%', paddingHorizontal: 0 }} onPress={() => navigation.navigate('MainTabs')} />
+              </View>
             </View>
           </View>
         </View>

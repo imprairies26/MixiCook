@@ -6,16 +6,15 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Input from '../components/common/Input';
 import Button from '../components/common/Button';
 import { COLORS, TYPOGRAPHY, SPACING } from '../constants/Theme';
-import { useAuthStore } from '../store/useAuthStore';
 
-export default function LoginScreen({ navigation }) {
-  const { login } = useAuthStore();
+export default function RegisterScreen({ navigation }) {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
-  const handleLogin = () => {
-    // Mock user data
-    login('dummy-token-123', { name: 'Mixi Cook', email: email });
+  const handleRegister = () => {
+    navigation.navigate('OTP');
   };
 
   return (
@@ -26,24 +25,39 @@ export default function LoginScreen({ navigation }) {
         style={{ flex: 1 }}
       >
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+          <TouchableOpacity 
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+          >
+            <Feather name="arrow-left" size={24} color={COLORS.text} />
+          </TouchableOpacity>
+
           <View style={styles.header}>
             <LinearGradient
               colors={[COLORS.primary, '#34d399']}
               style={styles.logoContainer}
             >
-              <Feather name="coffee" size={32} color="#fff" />
+              <Feather name="user" size={32} color="#fff" />
             </LinearGradient>
             <Text style={styles.brandTitle}>MixiCook</Text>
-            <Text style={styles.brandSubtitle}>Personalized AI Cooking</Text>
+            <Text style={styles.brandSubtitle}>Tạo tài khoản mới</Text>
           </View>
 
           <View style={styles.formContainer}>
-            <Text style={styles.formTitle}>Đăng nhập</Text>
-            <Text style={styles.formSubtitle}>Vui lòng nhập thông tin để tiếp tục.</Text>
+            <Text style={styles.formTitle}>Đăng ký</Text>
+            <Text style={styles.formSubtitle}>Điền đầy đủ thông tin để tiếp tục</Text>
+
+            <Input
+              placeholder="Họ và tên"
+              icon="user"
+              value={name}
+              onChangeText={setName}
+              style={styles.input}
+            />
 
             <Input
               placeholder="Email hoặc số điện thoại"
-              icon="user"
+              icon="mail"
               value={email}
               onChangeText={setEmail}
               style={styles.input}
@@ -60,17 +74,20 @@ export default function LoginScreen({ navigation }) {
               rightIcon="eye"
             />
 
-            <TouchableOpacity 
-              style={styles.forgotPassword}
-              onPress={() => navigation.navigate('ForgotPassword')}
-            >
-              <Text style={styles.forgotPasswordText}>Quên mật khẩu?</Text>
-            </TouchableOpacity>
+            <Input
+              placeholder="Xác nhận mật khẩu"
+              icon="lock"
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              secureTextEntry
+              style={styles.input}
+              rightIcon="eye"
+            />
 
             <Button 
-              title="ĐĂNG NHẬP" 
-              onPress={handleLogin}
-              style={styles.loginBtn}
+              title="ĐĂNG KÝ" 
+              onPress={handleRegister}
+              style={styles.registerBtn}
             />
 
             <View style={styles.dividerRow}>
@@ -81,10 +98,7 @@ export default function LoginScreen({ navigation }) {
 
             <View style={styles.socialRow}>
               <TouchableOpacity style={styles.socialBtn}>
-                <Feather name="github" size={20} color={COLORS.text} />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.socialBtn}>
-                <Feather name="twitter" size={20} color={COLORS.text} />
+                <Feather name="google" size={20} color={COLORS.text} />
               </TouchableOpacity>
               <TouchableOpacity style={styles.socialBtn}>
                 <Feather name="facebook" size={20} color={COLORS.text} />
@@ -92,9 +106,9 @@ export default function LoginScreen({ navigation }) {
             </View>
 
             <View style={styles.footer}>
-              <Text style={styles.footerText}>Chưa có tài khoản? </Text>
-              <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-                <Text style={styles.signupText}>Đăng ký ngay</Text>
+              <Text style={styles.footerText}>Đã có tài khoản? </Text>
+              <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+                <Text style={styles.loginText}>Đăng nhập</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -113,10 +127,13 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: SPACING.lg,
   },
+  backButton: {
+    marginTop: 10,
+    marginBottom: 10,
+  },
   header: {
     alignItems: 'center',
-    marginTop: 40,
-    marginBottom: 40,
+    marginBottom: 20,
   },
   logoContainer: {
     width: 64,
@@ -139,7 +156,7 @@ const styles = StyleSheet.create({
   brandSubtitle: {
     ...TYPOGRAPHY.caption,
     color: COLORS.textMuted,
-    letterSpacing: 2,
+    letterSpacing: 1,
     marginTop: 4,
   },
   formContainer: {
@@ -161,22 +178,14 @@ const styles = StyleSheet.create({
   formSubtitle: {
     ...TYPOGRAPHY.bodySmall,
     color: COLORS.textMuted,
-    marginBottom: 30,
+    marginBottom: 15,
   },
   input: {
     marginBottom: 16,
   },
-  forgotPassword: {
-    alignSelf: 'flex-end',
-    marginBottom: 30,
-  },
-  forgotPasswordText: {
-    ...TYPOGRAPHY.caption,
-    color: COLORS.primary,
-    fontWeight: '700',
-  },
-  loginBtn: {
-    marginBottom: 24,
+  registerBtn: {
+    marginTop: 10,
+    marginBottom: 20,
   },
   dividerRow: {
     flexDirection: 'row',
@@ -218,7 +227,7 @@ const styles = StyleSheet.create({
     ...TYPOGRAPHY.bodySmall,
     color: COLORS.textMuted,
   },
-  signupText: {
+  loginText: {
     ...TYPOGRAPHY.bodySmall,
     color: COLORS.primary,
     fontWeight: '800',

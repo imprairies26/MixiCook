@@ -1,65 +1,48 @@
-# MixiCook - Recipe Suggestion & Cooking Assistant
+# MixiCook - Project Context
 
-MixiCook is a mobile application designed to suggest recipes based on available ingredients, providing a seamless cooking experience with advanced features like hands-free cooking mode and personalized recommendations.
+MixiCook is a full-stack application designed to suggest cooking recipes based on available ingredients provided by the user.
 
 ## Project Overview
 
-- **Mobile App:** Built with React Native (Expo).
-- **Planned Backend:** 
-  - **Main Service:** Java 17, Spring Boot 3.5.13.
-  - **ML Search Service:** Python (FastAPI/Flask) for ingredient-based recipe prediction.
-  - **Database:** PostgreSQL.
-- **Architecture:** Orchestrated Microservices (Hybrid approach for ML).
+- **Backend:** Spring Boot 3.5 (Java 17) managed with Maven. It uses PostgreSQL for data persistence and implements a RESTful API with JWT-based security.
+- **Frontend:** React Native (Expo 54) mobile application. It utilizes Zustand for lightweight state management and Axios for API communication.
+- **Key Features:** User authentication, recipe CRUD, ingredient management ("Fridge"), and AI-assisted searching.
 
-## Core Features
+## Directory Structure
 
-1.  **AI-Powered Search:** Suggests recipes based on available ingredients using a machine learning model.
-2.  **Cooking Mode:** Hands-free UI with step-by-step instructions and integrated timers.
-3.  **Community Hub:** Users can post their own recipes (mapped to system ingredients), rate, and comment on recipes.
-4.  **Smart Shopping List:** Automatically generates a checklist of missing ingredients for chosen recipes.
-5.  **Personalized Feed:** Recommendation engine based on user preferences and dietary restrictions.
-
-## Tech Stack (Current & Planned)
-
-### Frontend (Mobile)
-- **Framework:** React Native / Expo
-- **State Management:** Zustand
-- **Navigation:** React Navigation (Native Stack, Bottom Tabs, Drawer)
-- **Networking:** Axios
-- **Styling:** Vanilla React Native Styles
-
-### Backend (Planned)
-- **Language:** Java 17
-- **Framework:** Spring Boot 3.5.13
-- **Database:** PostgreSQL
-- **AI/ML:** Python (FastAPI/Flask)
-- **Authentication:** JWT (JSON Web Token)
+- `/mixicook`: Spring Boot backend source code.
+- `/product`: React Native frontend source code.
+- `mixicook.sql`: Database schema initialization script.
+- `function.md`, `report.md`: Project documentation and requirement specifications.
 
 ## Building and Running
 
-### Frontend (Mobile)
-Commands are run from the `product` directory:
-- `npm install`: Install dependencies.
-- `npx expo start`: Start the Expo development server.
-- `npm run android`: Start for Android.
-- `npm run ios`: Start for iOS.
-- `npm run web`: Start for Web.
+### Backend (`/mixicook`)
+- **Requirements:** JDK 17, Maven.
+- **Build:** `./mvnw clean install`
+- **Run:** `./mvnw spring-boot:run`
+- **Test:** `./mvnw test`
 
-### Backend
-The backend project is currently in the design phase. A `report.md` file contains the detailed design and recommended dependencies for Spring Initializr.
+### Frontend (`/product`)
+- **Requirements:** Node.js, npm/yarn, Expo CLI.
+- **Install:** `npm install`
+- **Start:** `npm start` (opens Expo Go QR code)
+- **Platforms:** `npm run android`, `npm run ios`, or `npm run web`.
 
 ## Development Conventions
 
-- **Frontend Structure:**
-  - `src/components/common`: Reusable UI components (Button, Header, Input, etc.).
-  - `src/screens`: Individual app screens.
-  - `src/store`: Zustand store for state management.
-  - `src/navigation`: Navigation configuration.
-  - `src/constants`: App-wide constants like Theme.
-- **Backend Design:**
-  - Follows a hybrid microservice architecture where Python acts as a stateless engine.
-  - Ingredients are picked from a predefined system list to ensure data consistency for the ML model.
+### Backend Patterns
+- **Architecture:** Standard Layered Architecture (Controller -> Service -> Repository).
+- **Contracts:** Always use DTOs (`dto/`) for API requests and responses to decouple the database schema from the API.
+- **Persistence:** Use Spring Data JPA repositories. Note: `Recipe` entity uses `jsonb` for instructions, requiring PostgreSQL.
+- **Security:** Security logic is centralized in `config/SecurityConfig.java` and `security/`. JWT filters intercept all `/api/v1/**` requests except for `auth`.
 
-## Documentation
-- `report.md`: Detailed backend and database design report.
-- `product/app-idea.txt`: Original feature set and business logic requirements.
+### Frontend Patterns
+- **State:** Zustand stores live in `src/store/`. Keep stores focused (e.g., `useAuthStore`, `useRecipeStore`).
+- **Navigation:** Managed via React Navigation in `src/navigation/AppNavigation.js`.
+- **UI:** Consistent styling using `src/constants/Theme.js`. Prefer using components from `src/components/common/`.
+- **Formatting:** Prettier is configured as a dependency.
+
+### Git Guidelines
+- Follow **Conventional Commits** for all changes.
+- Ensure backend `./mvnw compile` and frontend `npm run start` (checks for syntax errors) pass before submitting changes.

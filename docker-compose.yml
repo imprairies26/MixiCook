@@ -1,0 +1,65 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: mixicook-db
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./mixicook.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - mixicook-network
+    restart: always
+
+  app:
+    build:
+      context: ./mixicook
+      dockerfile: Dockerfile
+    container_name: mixicook-be
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${DB_NAME}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      SERVER_PORT: 8083
+      APP_JWT_SECRET: ${JWT_SECRET}
+      ML_SERVICE_URL: ${ML_SERVICE_URL}
+    networks:
+      - mixicook-network
+    restart: always
+
+  nginx:
+    image: nginx:stable-alpine
+    container_name: mixicook-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/certbot/conf:/etc/letsencrypt
+      - ./nginx/certbot/www:/var/www/certbot
+    depends_on:
+      - app
+    networks:
+      - mixicook-network
+    restart: always
+
+  certbot:
+    image: certbot/certbot
+    container_name: mixicook-certbot
+    volumes:
+      - ./nginx/certbot/conf:/etc/letsencrypt
+      - ./nginx/certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    networks:
+      - mixicook-network
+
+networks:
+  mixicook-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
