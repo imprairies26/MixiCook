@@ -185,24 +185,25 @@ public class RecipeServiceImpl implements RecipeService {
 
     @Override
     public PagedResponse<RecipeResponse> searchByIngredients(IngredientSearchRequest searchRequest, Pageable pageable) {
-        List<Long> recipeIds = mlSearchService.predict(searchRequest.getIngredientIds());
-        // For simplicity, we filter the whole list. In real app, we might need custom query for paging.
-        List<Recipe> allRecipes = recipeRepository.findAllByIdIn(recipeIds);
-        
-        // Manual paging
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), allRecipes.size());
-        List<RecipeResponse> content = allRecipes.subList(start, end).stream()
-                .map(this::mapToRecipeResponse)
-                .collect(Collectors.toList());
+        List<Long> recipeIds = new ArrayList<>();
+        try {
+            recipeIds = mlSearchService.predict(searchRequest.getIngredientIds());
+        } catch (Exception e) {
+            // Log lỗi nhưng không chặn luồng chính, sẽ fallback về DB search
+            System.err.println("ML Service error, falling back to DB search: " + e.getMessage());
+        }
 
-        return PagedResponse.<RecipeResponse>builder()
-                .content(content)
-                .page(pageable.getPageNumber())
-                .size(pageable.getPageSize())
-                .totalElements(allRecipes.size())
-                .totalPages((int) Math.ceil((double) allRecipes.size() / pageable.getPageSize()))
-                .build();
+        Page<Recipe> recipePage;
+        if (recipeIds != null && !recipeIds.isEmpty()) {
+            // Ưu tiên kết quả từ ML nếu có
+            List<Recipe> recipes = recipeRepository.findAllByIdIn(recipeIds);
+            recipePage = new PageImpl<>(recipes, pageable, recipes.size());
+        } else {
+            // Fallback: Tìm kiếm trực tiếp trong DB theo nguyên liệu (Hard match)
+            recipePage = recipeRepository.findByIngredients(searchRequest.getIngredientIds(), pageable);
+        }
+        
+        return mapToPagedResponse(recipePage);
     }
 
     @Override

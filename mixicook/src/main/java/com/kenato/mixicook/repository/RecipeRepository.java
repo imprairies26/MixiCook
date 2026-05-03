@@ -18,6 +18,9 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
     @Query("SELECT r FROM Recipe r WHERE r.isSystem = true")
     Page<Recipe> findSystemRecipes(Pageable pageable);
 
+    @Query("SELECT DISTINCT r FROM Recipe r JOIN r.ingredients ri WHERE ri.ingredient.id IN :ingredientIds")
+    Page<Recipe> findByIngredients(List<Long> ingredientIds, Pageable pageable);
+
     @Query("SELECT r FROM Recipe r WHERE r.id IN :ids")
     List<Recipe> findAllByIdIn(List<Long> ids);
 }
