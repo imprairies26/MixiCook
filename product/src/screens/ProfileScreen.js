@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
   avatar: {
     width: 100,
     height: 100,
-    borderRadius: 35,
+    borderRadius: 50,
     backgroundColor: COLORS.surface,
     justifyContent: 'center',
     alignItems: 'center',
@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
     right: -4,
     width: 28,
     height: 28,
-    borderRadius: 10,
+    borderRadius: 50,
     backgroundColor: COLORS.primary,
     justifyContent: 'center',
     alignItems: 'center',

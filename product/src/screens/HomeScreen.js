@@ -196,7 +196,7 @@ export default function HomeScreen({ navigation }) {
               <View style={styles.aiIconWrapper}>
                 <Feather name="zap" size={14} color="#fff" />
               </View>
-              <Text style={styles.sectionTitle}>Gợi ý AI cho bạn</Text>
+              <Text style={styles.sectionTitle}>Gợi ý cho bạn</Text>
             </View>
           </View>
           {heroRecipe && (
