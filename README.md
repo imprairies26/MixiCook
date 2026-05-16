@@ -23,18 +23,20 @@
 
 Thiết kế và lập trình các giao diện & chức năng:
 
-- `SplashScreen`: Màn hình khởi động ứng dụng.
 - `FridgeScreen`: Quản lý tủ lạnh và nguyên liệu hiện có.
 - `IngredientPickerScreen`: Chọn nguyên liệu nhanh chóng.
 - `PostRecipeScreen`: Đăng tải công thức nấu ăn mới.
 - `RecipeDetailScreen`: Xem chi tiết nguyên liệu và các bước làm món ăn.
 - `SearchResultScreen`: Kết quả tìm kiếm và bộ lọc thông minh.
-- `ShoppingCartScreen`: Quản lý giỏ hàng đi chợ.
+- `useAuthStore`: Lưu thông tin đăng nhập
+- `useFridegeStore`: Lưu data của các nguyên liệu để lựa chọn
+- `useRecipeStore`: Lưu data của các công thức nấu ăn
+- `useShoppingStore`: Lưu data giỏ đi chợ của người dùng
 
 ### **Đàm Đức Huy (23810310051)**
 
 Thiết kế và lập trình các giao diện & chức năng:
-
+- `SplashScreen`: Màn hình khởi động ứng dụng.
 - `LoginScreen`: Đăng nhập hệ thống.
 - `RegisterScreen`: Đăng ký tài khoản mới.
 - `ForgotPasswordScreen`: Khôi phục mật khẩu.
@@ -42,11 +44,11 @@ Thiết kế và lập trình các giao diện & chức năng:
 - `CookingScreen` (Cooking Mode): Giao diện hướng dẫn nấu ăn từng bước.
 - `ProfileScreen`: Trang thông tin cá nhân và thống kê.
 - `HomeScreen`: Trang chủ hiển thị danh sách công thức thịnh hành và đề xuất.
+- `ShoppingCartScreen`: Quản lý giỏ hàng đi chợ.
 
 ## 5. Công nghệ sử dụng
 
 - **Front-end**: React Native, Expo.
-- **State Management**: Zustand.
 - **Thiết kế UI/UX**: Figma.
 
 ## 6. Hướng dẫn cài đặt
