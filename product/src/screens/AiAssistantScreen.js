@@ -21,14 +21,14 @@ export default function AiAssistantScreen({ navigation }) {
         <View style={styles.actions}>
           <Button 
             title="TÌM THEO NGUYÊN LIỆU" 
-            onPress={() => navigation.navigate('FridgeTab')}
+            onPress={() => navigation.navigate('MainTabs', { screen: 'FridgeTab' })}
             style={styles.actionBtn}
             icon={<Feather name="archive" size={20} color="#fff" />}
           />
           <Button 
             title="KHÁM PHÁ CÔNG THỨC" 
             variant="outline"
-            onPress={() => navigation.navigate('HomeTab')}
+            onPress={() => navigation.navigate('MainTabs', { screen: 'HomeTab' })}
             style={styles.actionBtn}
             icon={<Feather name="compass" size={20} color={COLORS.primary} />}
           />

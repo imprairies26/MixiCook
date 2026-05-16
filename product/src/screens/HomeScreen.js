@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, Animated, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
@@ -7,6 +7,7 @@ import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, BORDER_RADIUS } from '../constant
 import RecipeCard from '../components/common/RecipeCard';
 import { useRecipeStore } from '../store/useRecipeStore';
 import { useAuthStore } from '../store/useAuthStore';
+import { useShoppingStore } from '../store/useShoppingStore';
 
 const CATEGORY_ICONS = {
   'Tất cả': 'grid',
@@ -19,14 +20,34 @@ const CATEGORY_ICONS = {
 };
 
 export default function HomeScreen({ navigation }) {
-  const { getTrendingRecipes, getTopRatedRecipes, categories, searchRecipesByName } = useRecipeStore();
+  const { recipes, getTrendingRecipes, getTopRatedRecipes, categories, searchRecipesByName } = useRecipeStore();
   const { user } = useAuthStore();
+  const { shoppingList } = useShoppingStore();
+  const cartCount = shoppingList.filter(i => !i.checked).length;
   const [activeCategory, setActiveCategory] = useState('Tất cả');
   const [searchQuery, setSearchQuery] = useState('');
-  
-  const trending = getTrendingRecipes();
-  const topRated = getTopRatedRecipes();
+
+  // Memoize base lists
+  const trending = useMemo(() => getTrendingRecipes(), [recipes]);
+  const topRated = useMemo(() => getTopRatedRecipes(), [recipes]);
   const heroRecipe = trending[0];
+
+  // Filter by active category
+  const filteredTrending = useMemo(() => {
+    if (activeCategory === 'Tất cả') return trending;
+    return trending.filter(r => r.category === activeCategory);
+  }, [trending, activeCategory]);
+
+  const filteredTopRated = useMemo(() => {
+    if (activeCategory === 'Tất cả') return topRated;
+    return topRated.filter(r => r.category === activeCategory);
+  }, [topRated, activeCategory]);
+
+  // Memoize search results
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    return searchRecipesByName(searchQuery);
+  }, [searchQuery, recipes]);
 
   // animation
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -80,10 +101,21 @@ export default function HomeScreen({ navigation }) {
             <Text style={styles.userName}>{user?.name || 'Mixi Cook'}</Text>
           </View>
         </View>
-        <TouchableOpacity style={styles.iconButton}>
-          <Feather name="bell" size={22} color={COLORS.text} />
-          <View style={styles.dot} />
-        </TouchableOpacity>
+        <View style={styles.headerActions}>
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() => navigation.navigate('ShoppingCart')}
+          >
+            <Feather name="shopping-cart" size={22} color={COLORS.text} />
+            {cartCount > 0 && (
+              <View style={styles.cartBadge}>
+                <Text style={styles.cartBadgeText}>
+                  {cartCount > 9 ? '9+' : cartCount}
+                </Text>
+              </View>
+            )}
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView 
@@ -113,7 +145,7 @@ export default function HomeScreen({ navigation }) {
               <Text style={styles.sectionTitle}>Kết quả tìm kiếm</Text>
             </View>
             <View style={styles.grid}>
-              {searchRecipesByName(searchQuery).map(item => (
+              {searchResults.map(item => (
                 <RecipeCard 
                   key={item.id}
                   title={item.title}
@@ -125,7 +157,7 @@ export default function HomeScreen({ navigation }) {
                   onPress={() => navigation.navigate('RecipeDetail', { recipeId: item.id })}
                 />
               ))}
-              {searchRecipesByName(searchQuery).length === 0 && (
+              {searchResults.length === 0 && (
                 <Text style={{ ...TYPOGRAPHY.body, color: COLORS.textMuted, textAlign: 'center', width: '100%', marginTop: 20 }}>
                   Không tìm thấy món ăn nào.
                 </Text>
@@ -196,7 +228,7 @@ export default function HomeScreen({ navigation }) {
               <View style={styles.aiIconWrapper}>
                 <Feather name="zap" size={14} color="#fff" />
               </View>
-              <Text style={styles.sectionTitle}>Gợi ý AI cho bạn</Text>
+              <Text style={styles.sectionTitle}>Gợi ý cho bạn</Text>
             </View>
           </View>
           {heroRecipe && (
@@ -227,13 +259,16 @@ export default function HomeScreen({ navigation }) {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Đang thịnh hành</Text>
-            <TouchableOpacity style={styles.seeAllBtn}>
+            <TouchableOpacity
+              style={styles.seeAllBtn}
+              onPress={() => navigation.navigate('SearchResult', { query: '' })}
+            >
               <Text style={styles.seeAll}>Xem tất cả</Text>
               <Feather name="chevron-right" size={14} color={COLORS.primary} />
             </TouchableOpacity>
           </View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.hScroll}>
-            {trending.slice(1).map(item => (
+            {filteredTrending.slice(1).map(item => (
               <RecipeCard 
                 key={item.id}
                 title={item.title}
@@ -254,7 +289,7 @@ export default function HomeScreen({ navigation }) {
             <Text style={styles.sectionTitle}>Top đánh giá cao</Text>
           </View>
           <View style={styles.grid}>
-            {topRated.map(item => (
+            {filteredTopRated.map(item => (
               <RecipeCard 
                 key={item.id}
                 title={item.title}
@@ -333,6 +368,31 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.error,
     borderWidth: 1.5,
     borderColor: COLORS.surface,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    gap: 10,
+    alignItems: 'center',
+  },
+  cartBadge: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+    minWidth: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: COLORS.error,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 3,
+    borderWidth: 1.5,
+    borderColor: COLORS.surface,
+  },
+  cartBadgeText: {
+    color: '#fff',
+    fontSize: 9,
+    fontWeight: '800',
+    lineHeight: 11,
   },
   scrollContent: {
     paddingBottom: 20,

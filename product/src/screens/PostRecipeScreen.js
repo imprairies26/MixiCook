@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
@@ -8,6 +9,7 @@ import Input from '../components/common/Input';
 import { COLORS, TYPOGRAPHY, SPACING } from '../constants/Theme';
 
 export default function PostRecipeScreen({ navigation }) {
+  const insets = useSafeAreaInsets();
   const [title, setTitle] = useState('');
   const [ingredients, setIngredients] = useState([{ id: 1, name: '', amount: '' }]);
   const [steps, setSteps] = useState([{ id: 1, desc: '' }]);
@@ -21,7 +23,11 @@ export default function PostRecipeScreen({ navigation }) {
   };
 
   const handlePost = () => {
-    Alert.alert("Thành công!", "Công thức của bạn đã được đăng tải và sẽ hiển thị sau khi duyệt.");
+    if (!title.trim()) {
+      Alert.alert('Lỗi', 'Vui lòng nhập tên món ăn');
+      return;
+    }
+    Alert.alert('Thành công!', 'Công thức của bạn đã được đăng tải và sẽ hiển thị sau khi duyệt.');
     navigation.goBack();
   };
 
@@ -74,11 +80,23 @@ export default function PostRecipeScreen({ navigation }) {
                 placeholder="Tên nguyên liệu" 
                 style={[styles.inputBase, { flex: 2 }]} 
                 placeholderTextColor={COLORS.textMuted}
+                value={ing.name}
+                onChangeText={(text) =>
+                  setIngredients(ingredients.map(i =>
+                    i.id === ing.id ? { ...i, name: text } : i
+                  ))
+                }
               />
               <TextInput 
                 placeholder="Lượng" 
                 style={[styles.inputBase, { flex: 1 }]} 
                 placeholderTextColor={COLORS.textMuted}
+                value={ing.amount}
+                onChangeText={(text) =>
+                  setIngredients(ingredients.map(i =>
+                    i.id === ing.id ? { ...i, amount: text } : i
+                  ))
+                }
               />
               {ingredients.length > 1 && (
                 <TouchableOpacity onPress={() => setIngredients(ingredients.filter(i => i.id !== ing.id))}>
@@ -112,16 +130,25 @@ export default function PostRecipeScreen({ navigation }) {
                 multiline
                 style={styles.stepInput}
                 placeholderTextColor={COLORS.textMuted}
+                value={step.desc}
+                onChangeText={(text) =>
+                  setSteps(steps.map(s =>
+                    s.id === step.id ? { ...s, desc: text } : s
+                  ))
+                }
               />
             </View>
           ))}
         </View>
       </ScrollView>
 
-      <View style={styles.footer}>
-        <Button title="Lưu nháp" variant="outline" style={{flex: 1}} />
-        <View style={{width: 16}} />
-        <Button title="Đăng ngay" style={{flex: 1}} onPress={handlePost} />
+      <View style={[styles.footer, { bottom: Math.max(insets.bottom, 0) + 80 }]}>
+        <View style={{ flex: 1 }}>
+          <Button title="Lưu nháp" variant="outline" />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Button title="Đăng ngay" onPress={handlePost} />
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -252,13 +279,13 @@ const styles = StyleSheet.create({
   },
   footer: {
     flexDirection: 'row',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
+    gap: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 13,
     backgroundColor: COLORS.surface,
     borderTopWidth: 1,
     borderColor: COLORS.border,
     position: 'absolute',
-    bottom: 80,
     left: 0,
     right: 0,
   }

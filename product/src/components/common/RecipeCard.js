@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { Image } from 'expo-image';
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -12,6 +12,7 @@ export default function RecipeCard({
   matchScore,
   imageUrl,
   onPress,
+  onSave,
   style,
   large = false
 }) {
@@ -47,7 +48,10 @@ export default function RecipeCard({
             </View>
           ) : null}
         </View>
-        <TouchableOpacity style={styles.bookmarkButton}>
+        <TouchableOpacity
+          style={styles.bookmarkButton}
+          onPress={onSave ?? (() => Alert.alert('Đã lưu', `"${title}" đã được thêm vào danh sách yêu thích.`))}
+        >
           <Feather name="bookmark" size={18} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
