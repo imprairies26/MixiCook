@@ -1,34 +1,60 @@
-import { useState } from 'react';
-import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, TouchableOpacity, ScrollView, StatusBar } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Feather } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
-import Input from '../components/common/Input';
-import Button from '../components/common/Button';
-import { COLORS, TYPOGRAPHY, SPACING } from '../constants/Theme';
-import { useAuthStore } from '../store/useAuthStore';
+import { useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableOpacity,
+  ScrollView,
+  StatusBar,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Feather } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import Input from "../components/common/Input";
+import Button from "../components/common/Button";
+import { COLORS, TYPOGRAPHY, SPACING } from "../constants/Theme";
+import { useAuthStore } from "../store/useAuthStore";
 
 export default function LoginScreen({ navigation }) {
   const { login } = useAuthStore();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
-    // Mock user data
-    login('dummy-token-123', { name: 'Mixi Cook', email: email });
+  const handleLogin = async () => {
+    if (!email || !password) {
+      setError("Vui lòng nhập đầy đủ thông tin");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    const result = await login(email, password);
+
+    setLoading(false);
+    if (!result.success) {
+      setError(result.message);
+    }
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" />
-      <KeyboardAvoidingView 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
       >
-        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
           <View style={styles.header}>
             <LinearGradient
-              colors={[COLORS.primary, '#34d399']}
+              colors={[COLORS.primary, "#34d399"]}
               style={styles.logoContainer}
             >
               <Feather name="coffee" size={32} color="#fff" />
@@ -39,7 +65,16 @@ export default function LoginScreen({ navigation }) {
 
           <View style={styles.formContainer}>
             <Text style={styles.formTitle}>Đăng nhập</Text>
-            <Text style={styles.formSubtitle}>Vui lòng nhập thông tin để tiếp tục.</Text>
+            <Text style={styles.formSubtitle}>
+              Vui lòng nhập thông tin để tiếp tục.
+            </Text>
+
+            {error ? (
+              <View style={styles.errorContainer}>
+                <Feather name="alert-circle" size={16} color={COLORS.error} />
+                <Text style={styles.errorText}>{error}</Text>
+              </View>
+            ) : null}
 
             <Input
               placeholder="Email hoặc số điện thoại"
@@ -49,7 +84,7 @@ export default function LoginScreen({ navigation }) {
               style={styles.input}
               autoCapitalize="none"
             />
-            
+
             <Input
               placeholder="Mật khẩu"
               icon="lock"
@@ -60,15 +95,15 @@ export default function LoginScreen({ navigation }) {
               rightIcon="eye"
             />
 
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.forgotPassword}
-              onPress={() => navigation.navigate('ForgotPassword')}
+              onPress={() => navigation.navigate("ForgotPassword")}
             >
               <Text style={styles.forgotPasswordText}>Quên mật khẩu?</Text>
             </TouchableOpacity>
 
-            <Button 
-              title="ĐĂNG NHẬP" 
+            <Button
+              title="ĐĂNG NHẬP"
               onPress={handleLogin}
               style={styles.loginBtn}
             />
@@ -84,16 +119,13 @@ export default function LoginScreen({ navigation }) {
                 <Feather name="github" size={20} color={COLORS.text} />
               </TouchableOpacity>
               <TouchableOpacity style={styles.socialBtn}>
-                <Feather name="twitter" size={20} color={COLORS.text} />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.socialBtn}>
                 <Feather name="facebook" size={20} color={COLORS.text} />
               </TouchableOpacity>
             </View>
 
             <View style={styles.footer}>
               <Text style={styles.footerText}>Chưa có tài khoản? </Text>
-              <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+              <TouchableOpacity onPress={() => navigation.navigate("Register")}>
                 <Text style={styles.signupText}>Đăng ký ngay</Text>
               </TouchableOpacity>
             </View>
@@ -114,7 +146,7 @@ const styles = StyleSheet.create({
     padding: SPACING.lg,
   },
   header: {
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 40,
     marginBottom: 40,
   },
@@ -122,8 +154,8 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginBottom: 16,
     shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 8 },
@@ -146,7 +178,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.surface,
     padding: 30,
     borderRadius: 32,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 20 },
     shadowOpacity: 0.05,
     shadowRadius: 40,
@@ -163,24 +195,38 @@ const styles = StyleSheet.create({
     color: COLORS.textMuted,
     marginBottom: 30,
   },
+  errorContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FEF2F2",
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 20,
+    gap: 8,
+  },
+  errorText: {
+    ...TYPOGRAPHY.caption,
+    color: COLORS.error,
+    fontWeight: "600",
+  },
   input: {
     marginBottom: 16,
   },
   forgotPassword: {
-    alignSelf: 'flex-end',
+    alignSelf: "flex-end",
     marginBottom: 30,
   },
   forgotPasswordText: {
     ...TYPOGRAPHY.caption,
     color: COLORS.primary,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   loginBtn: {
     marginBottom: 24,
   },
   dividerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 24,
   },
   line: {
@@ -195,8 +241,8 @@ const styles = StyleSheet.create({
     fontSize: 10,
   },
   socialRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     gap: 16,
     marginBottom: 30,
   },
@@ -206,13 +252,13 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1,
     borderColor: COLORS.border,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: COLORS.surface,
   },
   footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
   },
   footerText: {
     ...TYPOGRAPHY.bodySmall,
@@ -221,6 +267,6 @@ const styles = StyleSheet.create({
   signupText: {
     ...TYPOGRAPHY.bodySmall,
     color: COLORS.primary,
-    fontWeight: '800',
+    fontWeight: "800",
   },
 });

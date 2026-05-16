@@ -13,6 +13,12 @@ const Timer = ({ initialSeconds }) => {
   const [timeLeft, setTimeSeconds] = useState(initialSeconds);
   const [isActive, setIsActive] = useState(false);
 
+  // Reset timer khi bước nấu thay đổi
+  useEffect(() => {
+    setTimeSeconds(initialSeconds);
+    setIsActive(false);
+  }, [initialSeconds]);
+
   useEffect(() => {
     let interval = null;
     if (isActive && timeLeft > 0) {
@@ -48,6 +54,7 @@ const Timer = ({ initialSeconds }) => {
     </View>
   );
 };
+
 
 export default function CookingModeScreen({ route, navigation }) {
   const { recipeId } = route.params || { recipeId: '1' };

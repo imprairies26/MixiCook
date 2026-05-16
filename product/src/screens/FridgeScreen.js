@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from '../components/common/Header';
@@ -7,9 +8,12 @@ import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, BORDER_RADIUS } from '../constants/Theme';
 import { useFridgeStore } from '../store/useFridgeStore';
+import { useRecipeStore } from '../store/useRecipeStore';
 
 export default function FridgeScreen({ navigation }) {
+  const insets = useSafeAreaInsets();
   const { myIngredients, ingredientCategories, addIngredient, removeIngredient } = useFridgeStore();
+  const { searchRecipesByIngredients } = useRecipeStore();
   const [search, setSearch] = useState('');
 
   // categories base
@@ -23,13 +27,11 @@ export default function FridgeScreen({ navigation }) {
     })).filter(cat => cat.items.length > 0);
   }, [search, ingredientCategories]);
 
-  // count how many recipes can be made (just simulate)
+  // count how many recipes can be made
   const recipeEstimate = useMemo(() => {
     if (myIngredients.length === 0) return 0;
-    if (myIngredients.length <= 2) return 1;
-    if (myIngredients.length <= 4) return 3;
-    return Math.min(myIngredients.length * 2, 15);
-  }, [myIngredients]);
+    return searchRecipesByIngredients(myIngredients).length;
+  }, [myIngredients, searchRecipesByIngredients]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -46,9 +48,9 @@ export default function FridgeScreen({ navigation }) {
           <View style={styles.infoBannerContent}>
             <View style={styles.infoBannerLeft}>
               <View style={styles.infoIconCircle}>
-                <Text style={styles.infoIconEmoji}>
-                  {myIngredients.length > 0 ? <Feather name={"check-circle"} size={24} color={COLORS.primary} /> : <Feather name={"box"} size={24} color={COLORS.primary} />}
-                </Text>
+                {myIngredients.length > 0
+                  ? <Feather name="check-circle" size={24} color={COLORS.primary} />
+                  : <Feather name="box" size={24} color={COLORS.primary} />}
               </View>
               <View style={styles.infoTextGroup}>
                 <Text style={styles.infoTitle}>
@@ -151,7 +153,10 @@ export default function FridgeScreen({ navigation }) {
       </ScrollView>
 
       {/* footer btn */}
-      <View style={styles.footer}>
+      <View style={[styles.footer, { bottom: Math.max(insets.bottom, 0) + 70 }]}>
+        {myIngredients.length === 0 && (
+          <Text style={styles.disabledHint}>Hãy chọn ít nhất 1 nguyên liệu nhé</Text>
+        )}
         <Button 
           title={`Gợi ý món ăn (${myIngredients.length} nguyên liệu)`}
           disabled={myIngredients.length === 0}
@@ -196,6 +201,7 @@ const styles = StyleSheet.create({
   },
   infoIconEmoji: {
     fontSize: 24,
+    // Kept for backwards compat, icon now in View
   },
   infoTextGroup: {
     flex: 1,
@@ -338,7 +344,6 @@ const styles = StyleSheet.create({
   // Footer
   footer: {
     position: 'absolute',
-    bottom: 80,
     left: 0,
     right: 0,
     paddingHorizontal: SPACING.lg,
@@ -346,5 +351,11 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
     borderTopWidth: 1,
     borderTopColor: 'rgba(0,0,0,0.04)',
+  },
+  disabledHint: {
+    ...TYPOGRAPHY.caption,
+    color: COLORS.textLight,
+    textAlign: 'center',
+    marginBottom: 8,
   },
 });

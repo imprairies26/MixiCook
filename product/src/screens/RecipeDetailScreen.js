@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { Feather } from '@expo/vector-icons';
@@ -14,7 +14,7 @@ export default function RecipeDetailScreen({ route, navigation }) {
   const { recipeId } = route.params || { recipeId: '1' };
   const { getRecipeById } = useRecipeStore();
   const { myIngredients } = useFridgeStore();
-  const { addItem } = useShoppingStore();
+  const { addItem, shoppingList } = useShoppingStore();
 
   const recipe = getRecipeById(recipeId);
   const [servings, setServings] = useState(2);
@@ -37,10 +37,18 @@ export default function RecipeDetailScreen({ route, navigation }) {
   if (!recipe) return null;
 
   const handleAddAllMissing = () => {
+    if (missingIngredients.length === 0) return;
     missingIngredients.forEach(ing => {
-      addItem({ name: ing.name, amount: ing.scaledAmount, unit: ing.unit });
+      addItem({ name: ing.name, amount: ing.scaledAmount, unit: ing.unit, sourceRecipe: recipe.title });
     });
-    alert(`Đã thêm ${missingIngredients.length} nguyên liệu vào giỏ đi chợ!`);
+    Alert.alert(
+      'Đã thêm vào giỏ',
+      `${missingIngredients.length} nguyên liệu còn thiếu đã được thêm vào giỏ đi chợ!`,
+      [
+        { text: 'Tiếp tục', style: 'cancel' },
+        { text: 'Xem giỏ hàng', onPress: () => navigation.navigate('ShoppingCart') },
+      ]
+    );
   };
 
   return (
@@ -114,6 +122,7 @@ export default function RecipeDetailScreen({ route, navigation }) {
 
           {scaledIngredients.map((ing) => {
             const isMissing = !myIngredients.some(mine => mine.toLowerCase() === ing.name.toLowerCase());
+            const isInCart = shoppingList.some(item => item.name.toLowerCase() === ing.name.toLowerCase());
             return (
               <View key={ing.id} style={styles.ingredientRow}>
                 <View style={[styles.bullet, isMissing && { backgroundColor: COLORS.accent }]} />
@@ -123,9 +132,13 @@ export default function RecipeDetailScreen({ route, navigation }) {
                 <Text style={styles.ingredientAmount}>
                   {ing.scaledAmount} {ing.unit}
                 </Text>
-                <TouchableOpacity onPress={() => addItem({ name: ing.name, amount: ing.scaledAmount, unit: ing.unit })}>
-                  <Feather name="plus-circle" size={18} color={COLORS.border} />
-                </TouchableOpacity>
+                {isInCart ? (
+                  <Feather name="check-circle" size={18} color={COLORS.primary} />
+                ) : (
+                  <TouchableOpacity onPress={() => addItem({ name: ing.name, amount: ing.scaledAmount, unit: ing.unit, sourceRecipe: recipe.title })}>
+                    <Feather name="plus-circle" size={18} color={COLORS.border} />
+                  </TouchableOpacity>
+                )}
               </View>
             );
           })}

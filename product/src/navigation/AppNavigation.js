@@ -20,6 +20,8 @@ import PostRecipeScreen from '../screens/PostRecipeScreen';
 
 import FridgeScreen from '../screens/FridgeScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import AiAssistantScreen from '../screens/AiAssistantScreen';
+import ShoppingCartScreen from '../screens/ShoppingCartScreen';
 
 import CustomTabBar from './CustomTabBar';
 
@@ -73,6 +75,8 @@ export default function AppNavigator() {
           <Stack.Screen name="IngredientPicker" component={IngredientPickerScreen} />
           <Stack.Screen name="RecipeDetail" component={RecipeDetailScreen} />
           <Stack.Screen name="CookingMode" component={CookingModeScreen} />
+          <Stack.Screen name="AiAssistant" component={AiAssistantScreen} />
+          <Stack.Screen name="ShoppingCart" component={ShoppingCartScreen} />
         </>
       )}
     </Stack.Navigator>

@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 import Header from '../components/common/Header';
 import RecipeCard from '../components/common/RecipeCard';
+import Button from '../components/common/Button';
 import { COLORS, TYPOGRAPHY, SPACING } from '../constants/Theme';
 import { useRecipeStore } from '../store/useRecipeStore';
 
@@ -27,7 +28,7 @@ export default function SearchResultScreen({ route, navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <Header 
-        title={ingredients ? "Dự đoán món ăn" : `Kết quả cho "${query}"`} 
+        title={ingredients ? "Dự đoán món ăn" : `Kết quả cho "${query === "" ? "thịnh hành" : query}"`} 
         showBack 
       />
 
@@ -61,9 +62,28 @@ export default function SearchResultScreen({ route, navigation }) {
           </View>
         ) : (
           <View style={styles.emptyContainer}>
-            <Feather name="search" size={64} color={COLORS.border} />
+            <View style={styles.emptyIconCircle}>
+              <Feather name="search" size={40} color={COLORS.primary} />
+            </View>
             <Text style={styles.emptyTitle}>Không tìm thấy món ăn nào</Text>
             <Text style={styles.emptySubtitle}>Hãy thử chọn thêm nguyên liệu hoặc tìm từ khóa khác nhé!</Text>
+            
+            <View style={styles.emptyActions}>
+              {ingredients ? (
+                <Button 
+                  title="Đổi nguyên liệu" 
+                  onPress={() => navigation.navigate('FridgeTab')}
+                  style={styles.emptyBtn}
+                  icon={<Feather name="edit-2" size={18} color="#fff" />}
+                />
+              ) : null}
+              <Button 
+                title="Xem tất cả công thức" 
+                variant={ingredients ? "outline" : "primary"}
+                onPress={() => navigation.navigate('HomeTab')}
+                style={styles.emptyBtn}
+              />
+            </View>
           </View>
         )}
       </ScrollView>
@@ -118,18 +138,35 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 100,
+    marginTop: 60,
+  },
+  emptyIconCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 24,
   },
   emptyTitle: {
     ...TYPOGRAPHY.h2,
     color: COLORS.text,
-    marginTop: 24,
   },
   emptySubtitle: {
     ...TYPOGRAPHY.body,
     color: COLORS.textMuted,
     textAlign: 'center',
     marginTop: 8,
-    paddingHorizontal: 40,
+    paddingHorizontal: 30,
+    marginBottom: 32,
+  },
+  emptyActions: {
+    width: '100%',
+    paddingHorizontal: 20,
+    gap: 12,
+  },
+  emptyBtn: {
+    width: '100%',
   }
 });
